@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Búsqueda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: #000;
+    color: #fff;
+    font-family: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
+  }
+  body { padding: 28px 22px 60px; }
+
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 40px;
+  }
+  .back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 40px;
+    color: #fff;
+    text-decoration: none;
+    flex: none;
+  }
+  .back svg { width: 20px; height: 20px; }
+  .top h1 {
+    margin: 0;
+    font-weight: 400;
+    font-size: 20px;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    color: #8a8a8a;
+  }
+
+  .search {
+    margin-top: 34px;
+  }
+  .search input {
+    width: 100%;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 17px;
+    color: #fff;
+    outline: none;
+  }
+  .search input::placeholder { color: #666; }
+  .search input:focus { border-color: #fff; }
+
+  #resultados {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+  }
+  #resultados li a {
+    display: block;
+    padding: 15px 4px;
+    border-bottom: 1px solid #1c1c1c;
+    color: #fff;
+    text-decoration: none;
+    font-size: 26px;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+  #resultados li a:active,
+  #resultados li a:focus-visible { color: #8a8a8a; outline: none; }
+  @media (hover: hover) {
+    #resultados li a:hover { color: #8a8a8a; }
+  }
+
+  #top10 { margin-top: 30px; }
+  #top10 h2 {
+    margin: 0 0 6px;
+    font-family: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
+    font-weight: 400;
+    font-size: 26px;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    color: #b3b3b3;
+  }
+  #top10 ol { list-style: none; margin: 0; padding: 0; }
+  #top10 li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 2px;
+    border-bottom: 1px solid #1c1c1c;
+    color: #a8a8a8;
+    text-decoration: none;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 16px;
+  }
+  #top10 li a:active,
+  #top10 li a:focus-visible { color: #6f6f6f; outline: none; }
+  @media (hover: hover) { #top10 li a:hover { color: #6f6f6f; } }
+  #top10 .n { width: 20px; flex: none; color: #777; }
+  #top10 svg { width: 14px; height: 14px; flex: none; fill: currentColor; }
+  .vacio {
+    margin-top: 48px;
+    text-align: center;
+    font-size: 22px;
+    color: #555;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="top">
+    <a class="back" href="https://parallaxstream.my.canva.site/" aria-label="Volver">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="15 4 7 12 15 20"></polyline>
+      </svg>
+    </a>
+    <h1>Búsqueda</h1>
+  </div>
+
+  <div class="search">
+    <input id="q" type="search" placeholder="Busca por título o palabra clave" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+  </div>
+
+  <section id="top10">
+    <h2>Top 10</h2>
+    <ol id="lista-top"></ol>
+  </section>
+
+  <ul id="resultados"></ul>
+  <div id="vacio" class="vacio" hidden>Sin resultados</div>
+
+<script>
+  var BASE = "https://parallax-oficial.github.io/Parallax/";
+
+  // Para agregar una historia nueva, copia un bloque y cambia los datos.
+  var historias = [
+    { titulo: "Ratman", url: BASE + "ratman.html",
+      claves: "found footage, monstruo, criatura, terror, cámara en mano, metraje encontrado, rata, hombre, alcantarillas, roedor, sótano, mutante, cámara, grabación, cloaca, bestia, persecución, ciudad, subterráneo" },
+
+    { titulo: "Las Entrevistas", url: BASE + "las-entrevistas.html",
+      claves: "televisores, ochenta, noventa, setenta, épocas, testimonios, psique, tecnología, ia, inteligencia artificial, entrevista, televisión, archivo, grabaciones, documental, década, pasado, futuro, robot, máquinas" },
+
+    { titulo: "La Familia Rani", url: BASE + "la-familia-rani.html",
+      claves: "morbo, macabro, psicológico, psique, horror familiar, generacional, morbosa, macabra, asquerosa, gore, familia, herencia, secretos, locura, perturbador, sangre, enfermizo, oscuro, linaje, hermanos" },
+
+    { titulo: "Bigfoot", url: BASE + "bigfoot.html",
+      claves: "monstruo, acción, frenético, absurdo, comedia, historias cortas, criatura, sasquatch, bosque, pelea, humor, jóvenes, pueblo, bestia, aventura, persecución, parodia, corto" },
+
+    { titulo: "Fenómeno Vulgar", url: BASE + "fenomeno-vulgar.html",
+      claves: "juventud, adolescencia, jóvenes, inocencia, vulgaridades, impacto social, psicológico, blog, absurdo, comedia, colegio, amigos, escuela, secundaria, adolescentes, rebeldía, groserías, redes sociales, comedia negra, crecer, sociedad" },
+
+    { titulo: "Triangle Room", url: BASE + "triangle-room.html",
+      claves: "amor, romance, habitación, triángulo, dann, alice, marie, absurdo, comedia amorosa, cuarta pared, triángulo amoroso, pareja, celos, cuarto, amantes, humor, romántica, metaficción, enredo, comedia romántica" },
+
+    { titulo: "Menem", url: BASE + "menem.html",
+      claves: "política, argentina, historia, documental, testimonios, sátira, carlos menem, presidente, noventa, peronismo, casa rosada, corrupción, poder, biografía, país, década del noventa, gobierno, argentino" },
+
+    { titulo: "Strike", url: BASE + "strike.html",
+      claves: "historia corta, extraño, experimental, presidente, huelga, raro, paro, protesta, trabajadores, gobierno, líder, absurdo, surreal, conflicto, país, cuento, corto, política" },
+
+    { titulo: "Nada", url: BASE + "nada.html",
+      claves: "absurdo, raro, experimental, historia corta, corto, vacío, minimalista, surreal, misterio, cuento, breve, existencial, silencio, abstracto, curioso, extraño" },
+
+    { titulo: "Muevete Al Minuto", url: BASE + "muevete-al-minuto.html",
+      claves: "cocina, culinario, caos, comida, caótico, restaurante, cocinero, chef, estrés, minuto, tiempo, rapidez, comedia, platos, desastre, gastronomía, cocineros, mesa" },
+
+    { titulo: "Eternamente Vivo", url: BASE + "eternamente-vivo.html",
+      claves: "biografía, psicológico, trauma, éxito, parallax, historia larga, vida, muerte, inmortal, eternidad, martino, garilda, primera parte, saga, memoria, secretos, drama, fama" },
+
+    { titulo: "Eternamente Vivo: con Murray Franklin", url: BASE + "eternamente-vivo-2.html",
+      claves: "eternamente vivo 2, secuela, joker, psicológico, historia larga, fragmentación, fragmentada, diez capítulos, muchos capítulos, show, martino, biografía, relatos reales, murray, franklin, talk show, programa de televisión, entrevista, fama, locura, televisión, segunda parte, payaso" },
+
+    { titulo: "Eternamente Vivo: con Amadeus Shell", url: BASE + "eternamente-vivo-3.html",
+      claves: "eternamente vivo 3, secuela, trilogía, martino, piano, futurista, nanotecnología, hechos reales, garilda, amadeus, shell, música, pianista, tecnología, futuro, ciencia ficción, nano, robots, tercera parte, compositor" },
+
+    { titulo: "Eternamente Vivo: con Dante El Grande", url: BASE + "eternamente-vivo-4.html",
+      claves: "eternamente vivo 4, secuela, cuarteto, magia, found footage, martino, dante, el grande, mago, ilusionismo, truco, espectáculo, cámara, grabación, cuarta parte, misterio, metraje encontrado, escenario" },
+
+    { titulo: "Eternamente Vivo: con Valak Seraphel", url: BASE + "eternamente-vivo-5.html",
+      claves: "eternamente vivo 5, final, secuela, franquicia, martino, garilda, santillan, demonio, paralelo, muerte, venganza, valak, seraphel, ángel, infierno, final de saga, quinta parte, oscuridad, mundos paralelos, castigo, sobrenatural, cierre" },
+
+    { titulo: "Obedece", url: BASE + "obedece.html",
+      claves: "crítica, política, sátira, relatos, corto, historia corta, obediencia, autoridad, gobierno, control, sociedad, órdenes, dictadura, manipulación, sistema, cuento, poder" },
+
+    { titulo: "Mama Dogs", url: BASE + "mama-dogs.html",
+      claves: "crítica, absurdo, mundo paralelo, sátira, sexual, show, extraño, perros, mamá, surreal, mundo extraño, televisión, escándalo, sátira social, perturbador, adulto, humor negro, parodia" },
+
+    { titulo: "Los Hermanos Menéndez", url: BASE + "los-hermanos-menendez.html",
+      claves: "familia, asesinato, padres, trauma, policial, hechos reales, basadas en hechos reales, lyle, erik, hermanos, crimen, juicio, abuso, tribunal, mansión, caso real, tragedia, justicia" },
+
+    { titulo: "No Te Olvides De Mí", url: BASE + "no-te-olvides-de-mi.html",
+      claves: "casos reales, marito salto, argentina, hechos reales, basado en hechos reales, policiales, abuso, mario salto, justicia, víctima, caso, crimen, tragedia, denuncia, memoria, policial real, argentino" },
+
+    { titulo: "Georgeus Vortex", url: BASE + "georgeus-vorex.html",
+      claves: "extraño, experimento, raro, relato corto, experimental, georgeus, vortex, laboratorio, ciencia, misterio, surreal, inquietante, cuento, rareza, anomalía, corto" },
+
+    { titulo: "Divina Comedia", url: BASE + "divina-comedia.html",
+      claves: "dante, infierno, cielo, purgatorio, historia larga, profunda, simbólica, dios, diablo, ángeles, demonios, alighieri, poema, viaje, círculos, paraíso, beatriz, virgilio, clásico, religión, épica" },
+
+    { titulo: "Without Warning", url: BASE + "without-warning.html",
+      claves: "sin advertencia, extraterrestre, meteoritos, espacio, noticiero, noticias, found footage, metraje encontrado, mockumentary, sin aviso, alien, ovni, invasión, asteroide, reportero, apocalipsis, fin del mundo, cámara, suspenso, ciencia ficción" },
+
+    { titulo: "El Teléfono", url: BASE + "el-telefono.html",
+      claves: "extraño, empresa, telefonía, testimonios, años pasados, ochenta, setenta, misterio, llamada, línea, compañía, operadora, antiguo, cable, voces, empresa telefónica, paranormal, terror, retro, teléfonos" },
+
+    { titulo: "Retorcidos", url: BASE + "retorcidos.html",
+      claves: "raro, macabro, niños, animatrónicos, animatronicos, fnaf, fiesta, show, setenta, ochenta, épocas antiguas, gore, pizzería, muñecos, cumpleaños, restaurante infantil, five nights, terror, sangre, retro, perturbador" },
+
+    { titulo: "Metalosis Maligna", url: BASE + "metalosis-maligna.html",
+      claves: "enfermedad, trauma, triste, historia corta, explícita, implante, prótesis, cadera, medicina, hospital, doctor, dolor, cuerpo, sufrimiento, drama, metal, cirugía, corto" }
+  ];
+
+  // Quita tildes y mayúsculas para que "acción" y "accion" funcionen igual.
+  function norm(s) {
+    return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  historias.forEach(function (h) {
+    h.nTitulo = norm(h.titulo);
+    h.nClaves = h.claves.split(",").map(function (c) { return norm(c.trim()); });
+    h.palabras = (h.nTitulo + " " + h.nClaves.join(" ")).split(/[^a-z0-9ñ]+/).filter(Boolean);
+  });
+
+  // Un fragmento coincide si es el inicio de una palabra,
+  // o si tiene 3 letras o más y aparece dentro de ella.
+  function coincide(fragmento, palabra) {
+    if (palabra.indexOf(fragmento) === 0) return true;
+    return fragmento.length >= 3 && palabra.indexOf(fragmento) !== -1;
+  }
+
+  function puntaje(h, fragmentos) {
+    var total = 0;
+    for (var i = 0; i < fragmentos.length; i++) {
+      var f = fragmentos[i], mejor = 0;
+      if (h.nTitulo.indexOf(f) === 0) mejor = 6;
+      else if (h.nTitulo.indexOf(f) !== -1 && f.length >= 2) mejor = 5;
+      for (var j = 0; j < h.nClaves.length && mejor < 4; j++) {
+        if (h.nClaves[j].indexOf(f) === 0) mejor = Math.max(mejor, 4);
+        else if (f.length >= 3 && h.nClaves[j].indexOf(f) !== -1) mejor = Math.max(mejor, 3);
+      }
+      if (!mejor) {
+        for (var k = 0; k < h.palabras.length; k++) {
+          if (coincide(f, h.palabras[k])) { mejor = 2; break; }
+        }
+      }
+      if (!mejor) return 0; // todos los fragmentos deben coincidir
+      total += mejor;
+    }
+    return total;
+  }
+
+
+  // Top 10: cambia el orden o los títulos aquí (deben coincidir con los de la lista de arriba).
+  var top10 = ["Bigfoot", "Georgeus Vortex", "Retorcidos", "Ratman", "Eternamente Vivo: con Amadeus Shell",
+               "Las Entrevistas", "Metalosis Maligna", "Strike", "Nada", "Muevete Al Minuto"];
+  var nombresTop = { "Eternamente Vivo: con Amadeus Shell": "Eternamente Vivo 3" };
+  var LLAMA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.6 1.5c.4 3.1-1.1 5-2.7 6.8C8.3 10.1 6.5 12 6.5 15.2 6.5 19 9 22.5 12.2 22.5c3.6 0 6.3-3 6.3-6.9 0-2.6-1.2-4.4-2.4-5.8-.3 1.3-1 2.2-1.9 2.7.4-3.9-.5-8.3-1.6-11z"/></svg>';
+
+  var listaTop = document.getElementById("lista-top");
+  top10.forEach(function (t, i) {
+    var h = historias.filter(function (x) { return x.titulo === t; })[0];
+    if (!h) return;
+    var li = document.createElement("li");
+    var a = document.createElement("a");
+    a.href = h.url;
+    var n = document.createElement("span");
+    n.className = "n";
+    n.textContent = i + 1;
+    var nombre = document.createElement("span");
+    nombre.textContent = nombresTop[t] || t;
+    a.appendChild(n);
+    a.appendChild(nombre);
+    if (i < 3) {
+      var f = document.createElement("span");
+      f.innerHTML = LLAMA;
+      f.style.display = "flex";
+      a.appendChild(f);
+    }
+    li.appendChild(a);
+    listaTop.appendChild(li);
+  });
+  var seccionTop = document.getElementById("top10");
+
+  var input = document.getElementById("q");
+  var lista = document.getElementById("resultados");
+  var vacio = document.getElementById("vacio");
+
+  function buscar() {
+    var texto = norm(input.value.trim());
+    lista.innerHTML = "";
+    vacio.hidden = true;
+    seccionTop.hidden = !!texto;
+    if (!texto) return;
+
+    var fragmentos = texto.split(/\s+/);
+    var res = [];
+    historias.forEach(function (h) {
+      var p = puntaje(h, fragmentos);
+      if (p > 0) res.push({ h: h, p: p });
+    });
+    res.sort(function (a, b) { return b.p - a.p || a.h.titulo.localeCompare(b.h.titulo); });
+
+    if (!res.length) { vacio.hidden = false; return; }
+
+    res.forEach(function (r) {
+      var li = document.createElement("li");
+      var a = document.createElement("a");
+      a.href = r.h.url;
+      a.textContent = r.h.titulo;
+      li.appendChild(a);
+      lista.appendChild(li);
+    });
+  }
+
+  input.addEventListener("input", buscar);
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      var primero = lista.querySelector("a");
+      if (primero) window.location.href = primero.href;
+    }
+  });
+</script>
+</body>
+</html>
